@@ -27,22 +27,22 @@ export async function GET(req: NextRequest) {
   target.protocol = "http:";
 
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 15000);
+  const timer = setTimeout(() => ctrl.abort(), 24000);
   try {
     const upstream = await fetch(target.toString(), {
       // No Referer header on purpose — the CDN 403s requests that carry one.
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; mocation-web/1.0)" },
+      headers: {
+        Accept: "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+        "User-Agent": "Mozilla/5.0 (compatible; mocation-web/1.0)",
+      },
       signal: ctrl.signal,
     });
     clearTimeout(timer);
     if (!upstream.ok) {
       return new NextResponse("upstream " + upstream.status, { status: 502 });
     }
-    // Buffer the image (rather than streaming the body) — more robust across
-    // the Cloudflare Workers / Vercel Edge runtimes. Images are small.
-    const buf = await upstream.arrayBuffer();
     const ct = upstream.headers.get("content-type") || "image/jpeg";
-    return new NextResponse(buf, {
+    return new NextResponse(upstream.body, {
       status: 200,
       headers: {
         "Content-Type": ct,
