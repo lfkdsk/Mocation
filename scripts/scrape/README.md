@@ -14,8 +14,30 @@
 |---|---|---|
 | 1. 枚举 | `enumerate.mjs` | 翻页 `movie/place hot-and-default` 拿全量 ID + 列表字段，攒图片清单与 movie↔place 关系边 |
 | 2. 详情 | `details.mjs` *(WIP)* | 逐个 `movie/{id}` `place/{id}` `area` `person` `comment` 回填，规范化入库 |
-| 3. 图片 | `images.mjs` *(WIP)* | 下载所有去重图片 → content-addressed 落盘 → 推 `assets` 分支 |
+| 3. 图片 | `images.mjs` + `publish-assets.mjs` | 下载去重图片 → 转 webp → content-addressed 落盘 → 分批推 `mocation-assets` 仓 |
 | 4. 切源 | web 数据层改造 | SSG 从 SQLite 读，图片走 jsDelivr |
+
+## 🖥 本地 (MacBook) 接力——阶段三下图
+
+阶段三是 5–8h / ~10–15GB 的活，适合在本地机器跑（不受云端容器回收影响）。云端已把数据快照和脚本备好，本地三步接上：
+
+```bash
+git pull                              # 拿到最新 data/mocation.sqlite.gz + 脚本
+npm run scrape:restore                # 还原 DB 到云端进度点
+npm i -D sharp                        # webp 转码（无则存原图）
+
+# 准备图床仓库（一次性）
+git clone <mocation-assets-url> data/assets
+
+# 下载（断点续传；CDN 不同主机，并发更高）
+node scripts/scrape/images.mjs        # 跳过 staticmap，转 webp，落盘 data/assets/<ab>/<sha1>.webp
+
+# 分批提交推送（每批 <1.5GB，绕开 GitHub 2GB/push）
+node scripts/scrape/publish-assets.mjs
+```
+
+jsDelivr 访问：`https://cdn.jsdelivr.net/gh/lfkdsk/mocation-assets@main/<ab>/<sha1>.webp`
+（文件名 = `sha1(原图URL)`，所以 app 端从 `coverPath` 能确定性算出 CDN 地址。）
 
 ## 运行
 

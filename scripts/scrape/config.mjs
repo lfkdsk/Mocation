@@ -34,3 +34,15 @@ export const TIMEOUT_MS = Number(process.env.SCRAPE_TIMEOUT_MS || 15000);
 export const RETRIES = Number(process.env.SCRAPE_RETRIES || 4);
 /** Page size for list enumeration. Upstream caps this at 500 regardless. */
 export const PAGE_SIZE = Number(process.env.SCRAPE_PAGE_SIZE || 500);
+
+/* ------------------------------ Phase 3: images --------------------------- */
+
+/** Image download concurrency. The CDN (cache.fotoplace.cc) tolerates more
+ *  parallelism than the API, and it's a different host, so this is separate. */
+export const IMG_CONCURRENCY = Number(process.env.IMG_CONCURRENCY || 16);
+/** Per-image fetch timeout (ms). */
+export const IMG_TIMEOUT_MS = Number(process.env.IMG_TIMEOUT_MS || 30000);
+/** Transcode downloaded images to WebP at this quality (0 disables → keep original). */
+export const IMG_WEBP_QUALITY = Number(process.env.IMG_WEBP_QUALITY || 82);
+/** Optional max edge (px) to downscale very large images; 0 = keep original size. */
+export const IMG_MAX_EDGE = Number(process.env.IMG_MAX_EDGE || 0);
