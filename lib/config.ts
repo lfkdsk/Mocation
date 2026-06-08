@@ -20,10 +20,10 @@ export const REVALIDATE = {
   search: 60 * 10, // 10 min
 } as const;
 
-/** Upstream request timeout (ms) — the origin occasionally stalls under burst. */
-export const UPSTREAM_TIMEOUT_MS = 12000;
-/** Retry attempts on network error / timeout (origin is flaky, not down). */
-export const UPSTREAM_RETRIES = 3;
+/** Upstream request timeout (ms) — fail fast so a flaky origin doesn't hang pages. */
+export const UPSTREAM_TIMEOUT_MS = 7000;
+/** Retry attempts on network error / timeout; caches absorb most transient misses. */
+export const UPSTREAM_RETRIES = 1;
 
 /**
  * Coordinate datum of the upstream lat/lng. Chinese map data is GCJ-02

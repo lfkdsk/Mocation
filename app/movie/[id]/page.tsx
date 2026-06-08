@@ -5,7 +5,7 @@ import Map, { type MapPoint } from "@/components/Map";
 import SceneTimeline from "@/components/SceneTimeline";
 import Comments from "@/components/Comments";
 import { movieGenres, countryName } from "@/lib/categories";
-import { getMovie, search, type MoviePlot, type PersonRef } from "@/lib/mocation";
+import { getMovie, type MoviePlot } from "@/lib/mocation";
 
 export const runtime = "edge";
 export const revalidate = 43200;
@@ -40,14 +40,6 @@ export default async function MoviePage({ params }: { params: Promise<{ id: stri
     href: `/place/${p.placeId}`,
     cover: p.coverPath,
   }));
-
-  // The movie endpoint doesn't return cast; the search index links movie↔people,
-  // so we derive related people by searching the exact title.
-  const cast: PersonRef[] = movie.cname
-    ? await search(movie.cname)
-        .then((r) => r.persons || [])
-        .catch(() => [])
-    : [];
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-10">
@@ -89,26 +81,6 @@ export default async function MoviePage({ params }: { params: Promise<{ id: stri
           ) : null}
         </div>
       </section>
-
-      {/* Cast / related people */}
-      {cast.length ? (
-        <section className="mt-14">
-          <h2 className="serif text-2xl font-bold mb-6">相关影人</h2>
-          <div className="flex flex-wrap gap-x-8 gap-y-6">
-            {cast.map((p) => (
-              <Link key={p.id} href={`/person/${p.id}`} className="group w-20 text-center">
-                <div className="zoomable w-20 h-20 rounded-full mx-auto bg-paper-2 ring-1 ring-line overflow-hidden">
-                  <Img src={p.coverPath} alt={p.cname} className="w-full h-full object-cover" />
-                </div>
-                <div className="mt-2 text-sm font-medium group-hover:text-accent transition-colors truncate">
-                  {p.cname}
-                </div>
-                {p.ename ? <div className="text-[11px] text-faint truncate">{p.ename}</div> : null}
-              </Link>
-            ))}
-          </div>
-        </section>
-      ) : null}
 
       {/* Map */}
       {points.length ? (
