@@ -6,6 +6,7 @@ import Comments from "@/components/Comments";
 import { placeTypes } from "@/lib/categories";
 import { getPlace } from "@/lib/mocation";
 
+export const runtime = "edge";
 export const revalidate = 43200;
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {

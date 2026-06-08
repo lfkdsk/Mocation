@@ -4,6 +4,7 @@ import Img from "@/components/Img";
 import Map, { type MapPoint } from "@/components/Map";
 import { getArea, getAreaMovies } from "@/lib/mocation";
 
+export const runtime = "edge";
 export const revalidate = 43200;
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {

@@ -2,6 +2,7 @@ import MovieCard from "@/components/MovieCard";
 import SectionTitle from "@/components/SectionTitle";
 import { getMoviesHot, getMoviesLatest } from "@/lib/mocation";
 
+export const runtime = "edge";
 export const revalidate = 3600;
 export const metadata = { title: "影视" };
 

@@ -1,0 +1,10 @@
+# Cloudflare Pages config (deploy via `npm run deploy:cf` or the CF dashboard).
+name = "mocation"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+# Runtime env (override in the Cloudflare dashboard → Settings → Variables):
+# MOCATION_API_ORIGIN   = "https://www.mocation.cc"
+# MOCATION_UA           = "Mocation/5.5.23 (Android; web-mirror)"
+# NEXT_PUBLIC_COORD_DATUM = "gcj02"

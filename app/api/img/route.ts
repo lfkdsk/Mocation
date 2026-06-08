@@ -33,14 +33,16 @@ export async function GET(req: NextRequest) {
       // No Referer header on purpose — the CDN 403s requests that carry one.
       headers: { "User-Agent": "Mozilla/5.0 (compatible; mocation-web/1.0)" },
       signal: ctrl.signal,
-      cache: "force-cache",
     });
     clearTimeout(timer);
-    if (!upstream.ok || !upstream.body) {
+    if (!upstream.ok) {
       return new NextResponse("upstream " + upstream.status, { status: 502 });
     }
+    // Buffer the image (rather than streaming the body) — more robust across
+    // the Cloudflare Workers / Vercel Edge runtimes. Images are small.
+    const buf = await upstream.arrayBuffer();
     const ct = upstream.headers.get("content-type") || "image/jpeg";
-    return new NextResponse(upstream.body, {
+    return new NextResponse(buf, {
       status: 200,
       headers: {
         "Content-Type": ct,

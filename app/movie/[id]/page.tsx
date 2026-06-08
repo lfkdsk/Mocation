@@ -7,6 +7,7 @@ import Comments from "@/components/Comments";
 import { movieGenres, countryName } from "@/lib/categories";
 import { getMovie, search, type MoviePlot, type PersonRef } from "@/lib/mocation";
 
+export const runtime = "edge";
 export const revalidate = 43200;
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {

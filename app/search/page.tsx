@@ -5,6 +5,7 @@ import PlaceCard from "@/components/PlaceCard";
 import SearchBox from "@/components/SearchBox";
 import { search } from "@/lib/mocation";
 
+export const runtime = "edge";
 export const revalidate = 600;
 export const metadata = { title: "搜索" };
 

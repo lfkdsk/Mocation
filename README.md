@@ -78,34 +78,30 @@ npm run build && npm run start
 
 4. Deploy。`/` `/movies` `/places` 为静态 ISR，详情 / 搜索为按需渲染。
 
-## ☁️ 部署到 Cloudflare
+## ☁️ 部署到 Cloudflare Pages（已配置 & 验证）
 
-可以。两个代理路由已设为 **Edge Runtime**（`export const runtime = "edge"`），代码只用
-fetch / Web Streams，天然兼容 Cloudflare。两条路子：
+本项目已用 **`@cloudflare/next-on-pages`** 配好并在本地 Cloudflare 运行时（workerd）跑通：
+所有动态路由都设了 `export const runtime = "edge"`，代理只用 fetch / arrayBuffer，已确认兼容。
 
-**A. Cloudflare Pages + next-on-pages（最简单）**
+**本地预览 / 部署：**
 ```bash
 cd web
-npx @cloudflare/next-on-pages@1     # 产物在 .vercel/output/static
+npm install
+npm run preview:cf     # 本地用 workerd 跑（wrangler pages dev）
+npm run deploy:cf      # 构建并 wrangler pages deploy（需先 `npx wrangler login`）
 ```
-Pages 项目设置：
+
+**用 Cloudflare 控制台连 GitHub 自动部署：**
+- Framework preset: **Next.js**
 - Build command: `npx @cloudflare/next-on-pages@1`
 - Build output directory: `.vercel/output/static`
-- Compatibility flags 勾选 **`nodejs_compat`**
+- Settings → Functions → **Compatibility flags 加 `nodejs_compat`**（`wrangler.toml` 里已写）
 - 环境变量同上表
 
-**B. OpenNext for Cloudflare（推荐，支持 ISR 缓存）**
-用 [`@opennextjs/cloudflare`](https://opennext.js.org/cloudflare)，把 Next 的数据缓存接到
-Workers KV / R2，能保留下面说的"防封"缓存语义。
-
-> ⚠️ **防封注意**：本站的防封核心是 Server Component 的 **ISR 数据缓存**（每页每窗口最多回源一次）。
-> 这在 **Vercel** 上开箱即用；在 **Cloudflare Pages（next-on-pages）** 上 Next 数据缓存支持有限，
-> 可能导致回源更频繁。两种补救：① 用上面的 **OpenNext**（KV/R2 做 ISR）；
-> ② 数据全部改走 `/api/m` 代理（该路由已带 `Cache-Control: s-maxage`，会被 Cloudflare CDN 缓存）。
-> 因此**最省心仍是 Vercel**；要上 Cloudflare 建议走 OpenNext。
-
-> 另一种纯静态方案：**GitHub Pages 前端 + 单独 Cloudflare Worker 代理**（把 `/api/img`、`/api/m`
-> 逻辑搬进 Worker）。灵活但要维护两处。
+> ⚠️ **防封提醒**：本站防封的一大支柱是 Server Component 的 **ISR 数据缓存**。next-on-pages
+> 对 Next 数据缓存支持有限，回源可能比 Vercel 频繁。已有的缓解：`/api/m` 代理自带
+> `Cache-Control: s-maxage=1800`（被 CF CDN 缓存）+ 客户端内存缓存 + 请求防抖/限流。
+> 若要更强的 ISR，可改用 [OpenNext for Cloudflare](https://opennext.js.org/cloudflare)（KV/R2 做增量缓存）。
 
 ## 📁 结构
 

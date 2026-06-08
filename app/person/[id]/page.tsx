@@ -5,6 +5,7 @@ import MovieCard from "@/components/MovieCard";
 import { countryName } from "@/lib/categories";
 import { getPerson } from "@/lib/mocation";
 
+export const runtime = "edge";
 export const revalidate = 43200;
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
