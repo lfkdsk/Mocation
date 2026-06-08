@@ -25,7 +25,18 @@ node scripts/scrape/enumerate.mjs
 node scripts/scrape/enumerate.mjs --only=place --from=40   # 断点续传：从第 40 页起
 ```
 
-全部脚本**幂等可续传**：重跑是 upsert，不会重复。进度写在 `meta` 表（`enum.place.page` 等）。
+```bash
+# 阶段 2：详情回填（约 3 万次请求，~6.6 req/s 下约 1.5h；可调 SCRAPE_CONCURRENCY/THROTTLE_MS）
+node scripts/scrape/details.mjs
+node scripts/scrape/details.mjs --only=place   # 只补取景地
+
+# 进度持久化：把一致性快照压成 data/mocation.sqlite.gz（committable）
+node scripts/scrape/snapshot.mjs
+# 新容器里恢复后继续（gz 已随分支拉下来）
+node scripts/scrape/snapshot.mjs --restore && node scripts/scrape/details.mjs
+```
+
+全部脚本**幂等可续传**：重跑是 upsert，不会重复。进度写在 `meta` 表（`enum.place.page`、`fetched_detail` 等）。容器是临时的，所以**里程碑节点用 `snapshot.mjs` 把 gz 提交到分支**——回收后 `--restore` 即可接着跑，最多损失最后一个增量。
 
 ## 配置（环境变量）
 
