@@ -13,6 +13,8 @@ import { API_BASE, UPSTREAM_UA, UPSTREAM_TIMEOUT_MS } from "@/lib/config";
 
 // Edge runtime so this also runs on Cloudflare Pages/Workers (and Vercel Edge).
 export const runtime = "edge";
+// Hong Kong — closest Vercel region to the China-hosted upstream API.
+export const preferredRegion = "hkg1";
 
 /** Allowlisted upstream paths (regex, no leading slash). Read-only surface. */
 const ALLOW: RegExp[] = [

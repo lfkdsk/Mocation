@@ -7,6 +7,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 // Edge runtime so this also runs on Cloudflare Pages/Workers (and Vercel Edge).
 export const runtime = "edge";
+// Run in Hong Kong — closest Vercel region to the Guangzhou image CDN
+// (cache.fotoplace.cc) and the China-hosted API, cutting cross-border latency.
+export const preferredRegion = "hkg1";
 
 const ALLOWED_HOST_RE = /(^|\.)fotoplace\.cc$/i;
 

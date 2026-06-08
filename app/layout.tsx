@@ -3,6 +3,10 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+// Run server rendering in Hong Kong — nearest to the China-hosted API/CDN.
+// (Vercel honours this for Edge routes; cascades to nested page segments.)
+export const preferredRegion = "hkg1";
+
 export const metadata: Metadata = {
   title: {
     default: "Mocation · 影视取景地",
