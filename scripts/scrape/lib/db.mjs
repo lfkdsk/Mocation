@@ -142,3 +142,34 @@ export function trackImage(db, url, seenIn) {
   db.prepare("INSERT INTO image(url, seen_in) VALUES(?,?) ON CONFLICT(url) DO NOTHING")
     .run(url, seenIn || null);
 }
+
+const FOTOPLACE_HOST_RE = /(^|\.)fotoplace\.cc$/i;
+
+/**
+ * Walk an arbitrary JSON value and track every fotoplace.cc image URL found.
+ * Used on raw detail payloads so we never miss a field (cover, plot scene
+ * shots, mapPath, staticMapUrl, satellitePath, imgInfos, …) — and stay
+ * future-proof if the upstream adds new image-bearing keys.
+ * @returns number of distinct new+existing URLs seen in this payload
+ */
+export function harvestImages(db, node, seenIn) {
+  const stmt = db.prepare("INSERT INTO image(url, seen_in) VALUES(?,?) ON CONFLICT(url) DO NOTHING");
+  const seen = new Set();
+  (function walk(v) {
+    if (!v) return;
+    if (typeof v === "string") {
+      if (/^https?:\/\//i.test(v) && !seen.has(v)) {
+        try {
+          if (FOTOPLACE_HOST_RE.test(new URL(v).hostname)) {
+            seen.add(v);
+            stmt.run(v, seenIn || null);
+          }
+        } catch { /* not a URL */ }
+      }
+      return;
+    }
+    if (Array.isArray(v)) { for (const x of v) walk(x); return; }
+    if (typeof v === "object") { for (const k of Object.keys(v)) walk(v[k]); }
+  })(node);
+  return seen.size;
+}

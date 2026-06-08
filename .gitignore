@@ -15,4 +15,5 @@ next-env.d.ts
 # shards) and the image assets branch are published separately.
 /data/*.sqlite
 /data/*.sqlite-*
+/data/*.log
 /data/assets/
