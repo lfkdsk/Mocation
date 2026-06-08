@@ -30,7 +30,8 @@ npm i -D sharp                        # webp 转码（无则存原图）
 git clone <mocation-assets-url> data/assets
 
 # 下载（断点续传；CDN 不同主机，并发更高）
-node scripts/scrape/images.mjs        # 跳过 staticmap，转 webp，落盘 data/assets/<ab>/<sha1>.webp
+# 全量约 45 万张。体积实测：原尺寸~59GB / ≤1600px~43GB / ≤1280px~37GB(推荐)
+IMG_MAX_EDGE=1280 node scripts/scrape/images.mjs   # 跳过 staticmap，转 webp，落盘 data/assets/<ab>/<sha1>.webp
 
 # 分批提交推送（每批 <1.5GB，绕开 GitHub 2GB/push）
 node scripts/scrape/publish-assets.mjs
