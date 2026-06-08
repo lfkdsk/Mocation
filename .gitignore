@@ -9,3 +9,11 @@ next-env.d.ts
 .vercel
 .wrangler
 /.vercel/output
+
+# Scraper working data — the snapshot DB + downloaded images are large binaries
+# produced by scripts/scrape. The committed data source (compressed DB / JSON
+# shards) and the image assets branch are published separately.
+/data/*.sqlite
+/data/*.sqlite-*
+/data/*.log
+/data/assets/
