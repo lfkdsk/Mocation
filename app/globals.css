@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+@theme {
+  /* Light editorial / travel-magazine palette */
+  --color-paper: #fbfaf7;
+  --color-paper-2: #f3f0e9;
+  --color-ink: #15120d;
+  --color-muted: #6f665a;
+  --color-faint: #9a9085;
+  --color-line: #e7e1d6;
+  --color-accent: #b23a2e; /* claret / terracotta */
+  --color-accent-soft: #f4e3df;
+
+  --font-serif: "Playfair Display", "Noto Serif SC", Georgia, "Songti SC", serif;
+  --font-sans: "Noto Sans SC", ui-sans-serif, system-ui, -apple-system, "PingFang SC", sans-serif;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* Editorial helpers */
+.label {
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+.kicker {
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+  font-weight: 600;
+}
+.hairline {
+  border-color: var(--color-line);
+}
+.serif {
+  font-family: var(--font-serif);
+}
+
+/* Subtle image hover */
+.zoomable {
+  overflow: hidden;
+}
+.zoomable img {
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.zoomable:hover img {
+  transform: scale(1.05);
+}
+
+/* Link underline animation */
+.ul-anim {
+  background-image: linear-gradient(var(--color-accent), var(--color-accent));
+  background-size: 0% 1px;
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  transition: background-size 0.3s ease;
+}
+.ul-anim:hover {
+  background-size: 100% 1px;
+}
+
+/* thin scrollbar for horizontal rails */
+.rail::-webkit-scrollbar {
+  height: 6px;
+}
+.rail::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 999px;
+}
+
+/* Leaflet tweaks to fit the light theme */
+.leaflet-container {
+  font-family: var(--font-sans);
+  background: var(--color-paper-2);
+}
+.leaflet-popup-content-wrapper {
+  border-radius: 4px;
+}
