@@ -12,6 +12,7 @@ type NearbyPlace = PlaceListItem & { distance?: number };
 
 const DEFAULT_CENTER: [number, number] = [39.9042, 116.4074]; // Beijing (WGS-84)
 const SIZE = 60;
+const MAX_AUTO_PAGES = 5; // auto-fill up to ~300 places per viewport, then fall back to the button
 const ROUND = 2; // ~1.1km — coarse query key so nearby pans reuse cache
 
 export default function ExploreMap() {
@@ -75,7 +76,10 @@ export default function ExploreMap() {
     });
   }
 
-  // Fresh query for the current viewport (page 0, replaces results).
+  // Fresh query for the current viewport: load page 0 (replaces results), then
+  // auto-fill the remaining pages until a short page (exhausted) or the cap.
+  // A new pan aborts `ac`, and every state write is guarded by `ac.signal`, so a
+  // superseded auto-fill can't leak markers/loading into the new viewport.
   async function newQuery(L: any, map: any) {
     const c = map.getCenter();
     const [glat, glng] = fromWgs84LatLng(c.lat, c.lng);
@@ -89,36 +93,57 @@ export default function ExploreMap() {
     abortRef.current = ac;
     setLoading(true);
     setPage(0);
+    setHasMore(false);
     try {
-      const list = await fetchPage(km, lat, lng, 0, ac.signal);
+      const first = await fetchPage(km, lat, lng, 0, ac.signal);
+      if (ac.signal.aborted) return;
       layerRef.current.clearLayers();
-      addMarkers(L, list);
-      setPlaces(list);
-      setHasMore(list.length >= SIZE);
+      addMarkers(L, first);
+      setPlaces(first);
+
+      // Keep pulling pages until one comes back short, or we hit the cap.
+      let pg = 0;
+      let last = first;
+      while (last.length >= SIZE && pg + 1 < MAX_AUTO_PAGES) {
+        pg += 1;
+        const list = await fetchPage(km, lat, lng, pg, ac.signal);
+        if (ac.signal.aborted) return;
+        addMarkers(L, list);
+        setPlaces((prev) => [...prev, ...list]);
+        setPage(pg);
+        last = list;
+      }
+      // Hit the cap with a still-full page? leave the manual button as an escape.
+      setHasMore(last.length >= SIZE);
     } catch (e) {
       if ((e as Error).name !== "AbortError") {
         setPlaces([]);
         setHasMore(false);
       }
     } finally {
-      setLoading(false);
+      if (!ac.signal.aborted) setLoading(false);
     }
   }
 
+  // Manual continuation past the auto-fill cap. Rides the current query's
+  // AbortController so a pan cancels an in-flight click instead of appending
+  // stale pages to the new viewport.
   async function loadMore() {
     const q = queryRef.current;
     const L = LRef.current;
+    const ac = abortRef.current;
     if (!q || !L || loadingMore) return;
     const next = page + 1;
     setLoadingMore(true);
     try {
-      const list = await fetchPage(q.km, q.lat, q.lng, next);
+      const list = await fetchPage(q.km, q.lat, q.lng, next, ac?.signal);
+      if (ac?.signal.aborted) return;
       addMarkers(L, list);
       setPlaces((prev) => [...prev, ...list]);
       setPage(next);
       setHasMore(list.length >= SIZE);
-    } catch {
-      setHasMore(false);
+    } catch (e) {
+      if ((e as Error).name !== "AbortError") setHasMore(false);
     } finally {
       setLoadingMore(false);
     }
