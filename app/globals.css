@@ -11,8 +11,9 @@
   --color-accent: #b23a2e; /* claret / terracotta */
   --color-accent-soft: #f4e3df;
 
-  --font-serif: "Playfair Display", "Noto Serif SC", Georgia, "Songti SC", serif;
-  --font-sans: "Noto Sans SC", ui-sans-serif, system-ui, -apple-system, "PingFang SC", sans-serif;
+  --font-serif: Georgia, "Times New Roman", "Songti SC", "STSong", "Noto Serif CJK SC", serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC",
+    "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif;
 }
 
 html {

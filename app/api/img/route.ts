@@ -1,9 +1,9 @@
 // Image proxy for cache.fotoplace.cc.
 // Fixes: (1) http -> https (mixed content), (2) the CDN 403s any request with
-// a Referer header (server-side fetch sends none), (3) adds immutable edge
-// caching so each image is pulled from origin at most once.
+// a Referer header (server-side fetch sends none), (3) caches each image at the
+// edge so it's pulled from the (China-hosted) origin at most once.
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 
 // Edge runtime so this also runs on Cloudflare Pages/Workers (and Vercel Edge).
 export const runtime = "edge";
@@ -29,6 +29,16 @@ export async function GET(req: NextRequest) {
   // Always fetch over http per the CDN; we re-serve over our https origin.
   target.protocol = "http:";
 
+  // Cloudflare does NOT auto-cache Function responses by Cache-Control, so cache
+  // explicitly via the Cache API. No-op where `caches.default` is absent (e.g.
+  // Vercel Edge — there the CDN honours Cache-Control automatically).
+  const edgeCache = (globalThis as { caches?: { default?: Cache } }).caches?.default;
+  const cacheKey = new Request(req.nextUrl.toString());
+  if (edgeCache) {
+    const hit = await edgeCache.match(cacheKey);
+    if (hit) return hit;
+  }
+
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 24000);
   try {
@@ -45,13 +55,22 @@ export async function GET(req: NextRequest) {
       return new NextResponse("upstream " + upstream.status, { status: 502 });
     }
     const ct = upstream.headers.get("content-type") || "image/jpeg";
-    return new NextResponse(upstream.body, {
+    const res = new NextResponse(upstream.body, {
       status: 200,
       headers: {
         "Content-Type": ct,
         "Cache-Control": "public, max-age=31536000, immutable",
       },
     });
+    // Store at the edge (non-blocking) so subsequent hits skip the origin.
+    if (edgeCache) {
+      try {
+        after(() => edgeCache.put(cacheKey, res.clone()));
+      } catch {
+        /* `after` unavailable — skip caching, still serve the image */
+      }
+    }
+    return res;
   } catch {
     clearTimeout(timer);
     return new NextResponse("proxy error", { status: 504 });

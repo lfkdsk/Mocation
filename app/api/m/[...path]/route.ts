@@ -8,7 +8,7 @@
 // so it can never be turned into an open relay that hammers (and gets us
 // banned from) the upstream.
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { API_BASE, UPSTREAM_UA, UPSTREAM_TIMEOUT_MS } from "@/lib/config";
 
 // Edge runtime so this also runs on Cloudflare Pages/Workers (and Vercel Edge).
@@ -62,6 +62,16 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ path: strin
     return NextResponse.json({ code: 403, msg: "endpoint not allowed", data: null }, { status: 403 });
   }
 
+  // Edge cache (Cloudflare doesn't auto-cache Function responses by header).
+  // A hit returns immediately and doesn't count against the rate limit.
+  // No-op on runtimes without `caches.default` (Vercel CDN caches by header).
+  const edgeCache = (globalThis as { caches?: { default?: Cache } }).caches?.default;
+  const cacheKey = new Request(req.nextUrl.toString());
+  if (edgeCache) {
+    const hit = await edgeCache.match(cacheKey);
+    if (hit) return hit;
+  }
+
   const ip =
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     req.headers.get("x-real-ip") ||
@@ -91,7 +101,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ path: strin
     } catch {
       ok = false;
     }
-    return new NextResponse(body, {
+    const res = new NextResponse(body, {
       status: upstream.status,
       headers: {
         "Content-Type": "application/json; charset=utf-8",
@@ -101,6 +111,15 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ path: strin
           : "no-store",
       },
     });
+    // Persist successful results in the edge cache (no-op on Vercel).
+    if (ok && edgeCache) {
+      try {
+        after(() => edgeCache.put(cacheKey, res.clone()));
+      } catch {
+        /* `after` unavailable — skip */
+      }
+    }
+    return res;
   } catch {
     clearTimeout(timer);
     return NextResponse.json({ code: 504, msg: "upstream timeout", data: null }, { status: 504 });

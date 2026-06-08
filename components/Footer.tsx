@@ -12,7 +12,7 @@ export default function Footer() {
           </div>
           <div className="text-xs text-faint leading-relaxed">
             <p>Unofficial · For study only</p>
-            <p className="mt-1">Built with Next.js · Deployed on Vercel</p>
+            <p className="mt-1">Built with Next.js · Deployed on Cloudflare Pages</p>
           </div>
         </div>
       </div>
