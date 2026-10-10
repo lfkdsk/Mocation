@@ -27,10 +27,22 @@ export const UPSTREAM_RETRIES = 1;
 
 /**
  * Coordinate datum of the upstream lat/lng. Chinese map data is GCJ-02
- * ("Mars coordinates"). We convert to WGS-84 for Leaflet + OSM/Carto tiles.
+ * ("Mars coordinates"). We convert to WGS-84 for Leaflet + OSM tiles.
  * Override to "bd09" or "wgs84" via env if alignment ever looks off.
  */
 export const COORD_DATUM = (process.env.NEXT_PUBLIC_COORD_DATUM || "gcj02") as
   | "gcj02"
   | "bd09"
   | "wgs84";
+
+/**
+ * Leaflet basemap. CARTO's basemaps now return an "API KEY REQUIRED" tile for
+ * keyless requests, so default to the standard OpenStreetMap tiles (free, no
+ * key; see https://operations.osmfoundation.org/policies/tiles/). Override via
+ * env to point at another provider.
+ */
+export const MAP_TILE_URL =
+  process.env.NEXT_PUBLIC_MAP_TILE_URL || "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+export const MAP_TILE_ATTRIBUTION =
+  process.env.NEXT_PUBLIC_MAP_TILE_ATTRIBUTION ||
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';

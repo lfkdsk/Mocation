@@ -5,6 +5,7 @@ import Link from "next/link";
 import "leaflet/dist/leaflet.css";
 import { toWgs84LatLng, fromWgs84LatLng } from "@/lib/coords";
 import { proxied } from "@/lib/img";
+import { MAP_TILE_URL, MAP_TILE_ATTRIBUTION } from "@/lib/config";
 import { placeTypes } from "@/lib/categories";
 import type { PlaceListItem } from "@/lib/mocation";
 
@@ -177,10 +178,9 @@ export default function ExploreMap() {
       LRef.current = L;
       const map = L.map(ref.current, { scrollWheelZoom: true, zoomControl: true });
       mapRef.current = map;
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-        subdomains: "abcd",
+      L.tileLayer(MAP_TILE_URL, {
         maxZoom: 19,
-        attribution: "&copy; OpenStreetMap &copy; CARTO",
+        attribution: MAP_TILE_ATTRIBUTION,
       }).addTo(map);
       layerRef.current = L.layerGroup().addTo(map);
 
