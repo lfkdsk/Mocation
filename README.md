@@ -50,7 +50,7 @@
 ## 🗺 坐标系
 
 上游经纬度为中国 **GCJ-02（火星坐标）**。`lib/coords.ts` 将其转换为 WGS-84 以匹配
-Leaflet + Carto/OSM 瓦片。如发现整体偏移，把 `NEXT_PUBLIC_COORD_DATUM` 改成 `bd09` 或 `wgs84`。
+Leaflet + OpenStreetMap 瓦片。如发现整体偏移，把 `NEXT_PUBLIC_COORD_DATUM` 改成 `bd09` 或 `wgs84`。
 
 ## 🚀 本地运行
 
@@ -75,6 +75,8 @@ npm run build && npm run start
    | `MOCATION_API_ORIGIN` | `https://www.mocation.cc` | 上游 API 源 |
    | `MOCATION_UA` | `Mocation/5.5.23 (Android; web-mirror)` | 回源 UA |
    | `NEXT_PUBLIC_COORD_DATUM` | `gcj02` | 坐标系：`gcj02` / `bd09` / `wgs84` |
+   | `NEXT_PUBLIC_MAP_TILE_URL` | OSM 标准瓦片 | 地图底图 URL 模板（Leaflet 格式） |
+   | `NEXT_PUBLIC_MAP_TILE_ATTRIBUTION` | OSM 署名 | 底图署名 |
 
 4. Deploy。`/` `/movies` `/places` 为静态 ISR，详情 / 搜索为按需渲染。
 

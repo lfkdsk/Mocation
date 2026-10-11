@@ -1,6 +1,6 @@
 // Coordinate conversion: Chinese GCJ-02 / BD-09 -> WGS-84.
 // Needed because upstream coordinates are in GCJ-02 ("Mars" datum) while
-// Leaflet + OSM/Carto tiles expect WGS-84. Classic eviltransform algorithm.
+// Leaflet + OSM tiles expect WGS-84. Classic eviltransform algorithm.
 
 import { COORD_DATUM } from "./config";
 

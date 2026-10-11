@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import "leaflet/dist/leaflet.css";
 import { toWgs84LatLng } from "@/lib/coords";
 import { proxied } from "@/lib/img";
+import { MAP_TILE_URL, MAP_TILE_ATTRIBUTION } from "@/lib/config";
 
 export interface MapPoint {
   lat: number;
@@ -42,10 +43,9 @@ export default function Map({
       });
       mapRef.current = map;
 
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-        subdomains: "abcd",
+      L.tileLayer(MAP_TILE_URL, {
         maxZoom: 19,
-        attribution: "&copy; OpenStreetMap &copy; CARTO",
+        attribution: MAP_TILE_ATTRIBUTION,
       }).addTo(map);
 
       const pin = (n?: number) =>
