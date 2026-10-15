@@ -8,6 +8,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "scrape:enum": "node scripts/scrape/enumerate.mjs",
+    "scrape:details": "node scripts/scrape/details.mjs",
+    "scrape:snapshot": "node scripts/scrape/snapshot.mjs",
+    "scrape:restore": "node scripts/scrape/snapshot.mjs --restore",
     "pages:build": "npx @cloudflare/next-on-pages@1",
     "preview:cf": "npm run pages:build && wrangler pages dev .vercel/output/static",
     "deploy:cf": "npm run pages:build && wrangler pages deploy .vercel/output/static"
